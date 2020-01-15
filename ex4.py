@@ -35,7 +35,7 @@ class MST:
         N = num_iterations * len(self.train)
         w_final = defaultdict(float)
         for i in range(num_iterations):
-            shuffle(self.train)
+            # shuffle(self.train)
             for j, parsed_sent in enumerate(self.train):
                 arcs = self.generate_arcs_from_sent(parsed_sent, Ws[-1])
                 mst = cle.min_spanning_arborescence(arcs, 0)
@@ -114,6 +114,10 @@ def bonus_feature(u_idx, v_idx, s):
     f = dist_feature(u_idx, v_idx, s)
     u_word, u_tag = get_word_and_tag(s, u_idx)
     v_word, v_tag = get_word_and_tag(s, v_idx)
+    f["R" + ONE_DIST] = int(u_idx - v_idx == -1)
+    f["R" + TWO_DIST] = int(u_idx - v_idx == -2)
+    f["R" + THREE_DIST] = int(u_idx - v_idx == -3)
+    f["R" + FOUR_PLUS_DIST] = int(u_idx - v_idx >= -4)
     f[u_word] = 1
     f[v_word] = 1
     f[u_tag] = 1
@@ -129,10 +133,10 @@ def main():
     # def_acc = default_mst.eval(def_w)
     # print("%.3f" % def_acc)
     #
-    # dist_mst = MST(dist_feature)
-    # dist_w = dist_mst.perceptron(2, 1)
-    # dist_acc = dist_mst.eval(dist_w)
-    # print("%.3f" % dist_acc)
+    dist_mst = MST(dist_feature)
+    dist_w = dist_mst.perceptron(2, 1)
+    dist_acc = dist_mst.eval(dist_w)
+    print("%.3f" % dist_acc)
 
     bonus_mst = MST(dist_feature)
     dist_w = bonus_mst.perceptron(2, 1)
