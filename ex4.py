@@ -109,40 +109,7 @@ def dist_feature(u_idx, v_idx, s):
     f[FOUR_PLUS_DIST] = int(u_idx - v_idx >= 4)
     return f
 
-
 def bonus_feature(u_idx, v_idx, s):
-    f = dist_feature(u_idx, v_idx, s)
-    u_word, u_tag = get_word_and_tag(s, u_idx)
-    v_word, v_tag = get_word_and_tag(s, v_idx)
-    # f["R" + ONE_DIST] = int(u_idx - v_idx == -1)
-    # f["R" + TWO_DIST] = int(u_idx - v_idx == -2)
-    # f["R" + THREE_DIST] = int(u_idx - v_idx == -3)
-    # f["R" + FOUR_PLUS_DIST] = int(u_idx - v_idx >= -4)
-    f[u_word] = 1
-    f[v_word] = 1
-    f[u_tag] = 1
-    f[v_tag] = 1
-    f[(u_word, v_tag)] = 1
-    f[(v_word, u_tag)] = 1
-    return f
-
-def bonus_feature_1(u_idx, v_idx, s):
-    f = dist_feature(u_idx, v_idx, s)
-    u_word, u_tag = get_word_and_tag(s, u_idx)
-    v_word, v_tag = get_word_and_tag(s, v_idx)
-    f["R" + ONE_DIST] = int(u_idx - v_idx == -1)
-    f["R" + TWO_DIST] = int(u_idx - v_idx == -2)
-    f["R" + THREE_DIST] = int(u_idx - v_idx == -3)
-    f["R" + FOUR_PLUS_DIST] = int(u_idx - v_idx >= -4)
-    # f[u_word] = 1
-    # f[v_word] = 1
-    # f[u_tag] = 1
-    # f[v_tag] = 1
-    # f[(u_word, v_tag)] = 1
-    # f[(v_word, u_tag)] = 1
-    return f
-
-def bonus_feature_2(u_idx, v_idx, s):
     f = dist_feature(u_idx, v_idx, s)
     u_word, u_tag = get_word_and_tag(s, u_idx)
     v_word, v_tag = get_word_and_tag(s, v_idx)
@@ -160,18 +127,16 @@ def bonus_feature_2(u_idx, v_idx, s):
 
 def eval(feature_function, title="feature function"):
     mst = MST(feature_function)
-    w = mst.perceptron(2, 1)
+    w = mst.perceptron(1, 1)
     acc = mst.eval(w)
     print(title)
     print("%.3f" % acc)
 
 
 def main():
-    # eval(default_feature)
+    eval(default_feature)
     eval(dist_feature)
-    eval(bonus_feature, "ido's tags")
-    eval(bonus_feature_1, "reverse dist")
-    eval(bonus_feature_2, "both")
+    eval(bonus_feature)
 
 
 if __name__ == "__main__":
