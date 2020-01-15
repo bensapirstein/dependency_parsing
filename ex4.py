@@ -138,7 +138,7 @@ def main():
     dist_acc = dist_mst.eval(dist_w)
     print("%.3f" % dist_acc)
 
-    bonus_mst = MST(dist_feature)
+    bonus_mst = MST(bonus_feature)
     dist_w = bonus_mst.perceptron(2, 1)
     bonus_acc = bonus_mst.eval(dist_w)
     print("%.3f" % bonus_acc)
