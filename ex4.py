@@ -31,22 +31,19 @@ class MST:
         return w
 
     def perceptron(self, num_iterations, lr):
-        Ws = [defaultdict(float)]
+        w = defaultdict(float)
         N = num_iterations * len(self.train)
         w_final = defaultdict(float)
         for i in range(num_iterations):
-            # shuffle(self.train)
+            shuffle(self.train)
             for j, parsed_sent in enumerate(self.train):
-                arcs = self.generate_arcs_from_sent(parsed_sent, Ws[-1])
+                arcs = self.generate_arcs_from_sent(parsed_sent, w)
                 mst = cle.min_spanning_arborescence(arcs, 0)
-                new_w = self.update_weights(Ws[-1], mst, parsed_sent, lr)
-                Ws.append(new_w)
-                if j == 500:
-                    return w_final
+                w = self.update_weights(w, mst, parsed_sent, lr)
                 if j % 100 is 0:
                     print("Parsed %d/%d.." % (j + 1, N))
-                for k in new_w:
-                    w_final[k] += float(new_w[k]) / N
+                for k in w:
+                    w_final[k] += float(w[k]) / N
 
         print("Finished calculating the perceptron")
         return w_final
@@ -127,16 +124,16 @@ def bonus_feature(u_idx, v_idx, s):
 
 def eval(feature_function, title="feature function"):
     mst = MST(feature_function)
-    w = mst.perceptron(1, 1)
+    w = mst.perceptron(2, 1)
     acc = mst.eval(w)
     print(title)
     print("%.3f" % acc)
 
 
 def main():
-    eval(default_feature)
-    eval(dist_feature)
-    eval(bonus_feature)
+    eval(default_feature, "default feature function")
+    eval(dist_feature, "feature function with distance")
+    eval(bonus_feature, "bonus feature function")
 
 
 if __name__ == "__main__":
