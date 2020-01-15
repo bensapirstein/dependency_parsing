@@ -168,7 +168,7 @@ def eval(feature_function, title="feature function"):
 
 def main():
     # eval(default_feature)
-    # eval(dist_feature)
+    eval(dist_feature)
     eval(bonus_feature, "ido's tags")
     eval(bonus_feature_1, "reverse dist")
     eval(bonus_feature_2, "both")
