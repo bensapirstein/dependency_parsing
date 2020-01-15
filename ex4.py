@@ -4,6 +4,7 @@ import numpy as np
 import Chu_Liu_Edmonds_algorithm as cle
 from collections import defaultdict
 from scipy.sparse import csr_matrix
+from random import shuffle
 
 nltk.download("dependency_treebank")
 
@@ -34,6 +35,7 @@ class MST:
         N = num_iterations * len(self.train)
         w_final = defaultdict(float)
         for i in range(num_iterations):
+            shuffle(self.train)
             for j, parsed_sent in enumerate(self.train):
                 arcs = self.generate_arcs_from_sent(parsed_sent, Ws[-1])
                 mst = cle.min_spanning_arborescence(arcs, 0)
@@ -123,17 +125,17 @@ def bonus_feature(u_idx, v_idx, s):
 
 def main():
     # default_mst = MST(default_feature)
-    # def_w = default_mst.perceptron(1, 1)
+    # def_w = default_mst.perceptron(2, 1)
     # def_acc = default_mst.eval(def_w)
     # print("%.3f" % def_acc)
     #
     # dist_mst = MST(dist_feature)
-    # dist_w = dist_mst.perceptron(1, 1)
+    # dist_w = dist_mst.perceptron(2, 1)
     # dist_acc = dist_mst.eval(dist_w)
     # print("%.3f" % dist_acc)
 
     bonus_mst = MST(dist_feature)
-    dist_w = bonus_mst.perceptron(1, 1)
+    dist_w = bonus_mst.perceptron(2, 1)
     bonus_acc = bonus_mst.eval(dist_w)
     print("%.3f" % bonus_acc)
 
