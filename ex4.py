@@ -30,7 +30,6 @@ class MST:
         return w
 
     def perceptron(self, num_iterations, lr):
-        Theta = []
         Ws = [defaultdict(float)]
         N = num_iterations * len(self.train)
         w_final = defaultdict(float)
@@ -72,21 +71,23 @@ class MST:
             mst = cle.min_spanning_arborescence(arcs, 0)
             mst_arcs = set((arc.tail, arc.head) for arc in mst.values())
             sent_arcs = set(
-                (node["address"],node["head"]) for node in parsed_sent.nodes.values() if node["head"] is not None)
+                (node["address"], node["head"]) for node in parsed_sent.nodes.values() if node["head"] is not None)
             accs.append(len(mst_arcs.intersection(sent_arcs)) / len(parsed_sent.nodes))
             if i % 100 is 0:
                 print("Evaluated %d/%d.." % (i + 1, len(self.test)))
         return np.average(accs)
 
 
+def get_word_and_tag(s, idx):
+    if idx is 0:
+        return "ROOT", "ROOT"
+    return s.nodes[idx]["word"], s.nodes[idx]["tag"]
+
+
 def default_feature(u_idx, v_idx, s):
     feature_vector = defaultdict(float)
-    u_word, v_word = s.nodes[u_idx]["word"], s.nodes[v_idx]["word"]
-    u_tag, v_tag = s.nodes[u_idx]["tag"], s.nodes[v_idx]["tag"]
-    if u_idx is 0:
-        u_word, u_tag = "ROOT", "ROOT"
-    if v_idx is 0:
-        v_word, v_tag = "ROOT", "ROOT"
+    u_word, u_tag = get_word_and_tag(s, u_idx)
+    v_word, v_tag = get_word_and_tag(s, v_idx)
     feature_vector[(u_word, v_word)] = 1
     feature_vector[(u_tag, v_tag)] = 1
     return feature_vector
@@ -107,17 +108,34 @@ def dist_feature(u_idx, v_idx, s):
     return f
 
 
+def bonus_feature(u_idx, v_idx, s):
+    f = dist_feature(u_idx, v_idx, s)
+    u_word, u_tag = get_word_and_tag(s, u_idx)
+    v_word, v_tag = get_word_and_tag(s, v_idx)
+    f[u_word] = 1
+    f[v_word] = 1
+    f[u_tag] = 1
+    f[v_tag] = 1
+    f[(u_word, v_tag)] = 1
+    f[(v_word, u_tag)] = 1
+    return f
+
+
 def main():
-    default_mst = MST(default_feature)
-    dist_mst = MST(dist_feature)
-    def_w = default_mst.perceptron(1, 1)
-    def_acc = default_mst.eval(def_w)
-    print(def_acc)
-    print("%.2f" % def_acc)
-    dist_w = dist_mst.perceptron(1, 1)
-    dist_acc = dist_mst.eval(dist_w)
-    print(dist_acc)
-    print("%.2f" % dist_acc)
+    # default_mst = MST(default_feature)
+    # def_w = default_mst.perceptron(1, 1)
+    # def_acc = default_mst.eval(def_w)
+    # print("%.3f" % def_acc)
+    #
+    # dist_mst = MST(dist_feature)
+    # dist_w = dist_mst.perceptron(1, 1)
+    # dist_acc = dist_mst.eval(dist_w)
+    # print("%.3f" % dist_acc)
+
+    bonus_mst = MST(dist_feature)
+    dist_w = bonus_mst.perceptron(1, 1)
+    bonus_acc = bonus_mst.eval(dist_w)
+    print("%.3f" % bonus_acc)
 
 
 if __name__ == "__main__":
