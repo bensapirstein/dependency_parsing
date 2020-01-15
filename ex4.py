@@ -19,12 +19,12 @@ class MST:
 
     def update_weights(self, w, mst, s, lr=1):
         for arc in mst.values():
-            arc_features = self.feature(arc.head, arc.tail, s)
+            arc_features = self.feature(arc.tail, arc.head, s)
             for k in arc_features:
                 w[k] -= lr * arc_features[k]
         for node in s.nodes.values():
             if node["head"] is not None:
-                arc_features = self.feature(node["head"], node["address"], s)
+                arc_features = self.feature(node["address"], node["head"], s)
                 for k in arc_features:
                     w[k] += lr * arc_features[k]
         return w
@@ -40,6 +40,8 @@ class MST:
                 mst = cle.min_spanning_arborescence(arcs, 0)
                 new_w = self.update_weights(Ws[-1], mst, parsed_sent, lr)
                 Ws.append(new_w)
+                if j == 500:
+                    return w_final
                 if j % 100 is 0:
                     print("Parsed %d/%d.." % (j + 1, N))
                 for k in new_w:
@@ -68,26 +70,14 @@ class MST:
         for i, parsed_sent in enumerate(self.test):
             arcs = self.generate_arcs_from_sent(parsed_sent, w)
             mst = cle.min_spanning_arborescence(arcs, 0)
-            mst_arcs = set((arc.head, arc.tail) for arc in mst.values())
+            mst_arcs = set((arc.tail, arc.head) for arc in mst.values())
             sent_arcs = set(
-                (node["head"], node["address"]) for node in parsed_sent.nodes.values() if node["head"] is not None)
+                (node["address"],node["head"]) for node in parsed_sent.nodes.values() if node["head"] is not None)
             accs.append(len(mst_arcs.intersection(sent_arcs)) / len(parsed_sent.nodes))
             if i % 100 is 0:
                 print("Evaluated %d/%d.." % (i + 1, len(self.test)))
         return np.average(accs)
 
-
-def default_feature_old(u_idx, v_idx, s):
-    feature_vector = defaultdict(float)
-    u_word, v_word = s.nodes[u_idx]["word"], s.nodes[v_idx]["word"]
-    u_tag, v_tag = s.nodes[u_idx]["tag"], s.nodes[v_idx]["tag"]
-    if u_idx is 0:
-        u_word, u_tag = "ROOT", "ROOT"
-    if v_idx is 0:
-        v_word, v_tag = "ROOT", "ROOT"
-    feature_vector[(u_word, v_word)] = 1
-    feature_vector[(u_tag, v_tag)] = 1
-    return feature_vector
 
 def default_feature(u_idx, v_idx, s):
     feature_vector = defaultdict(float)
